@@ -1,0 +1,133 @@
+---
+title: "Tugas Praktikum MPDW - Pertemuan 6"
+author: "Raihana Asma Amani_G1401221039"
+output:
+  rmdformats::readthedown:
+    highligh: tango
+---
+
+### *Packages*
+```{r, echo=FALSE}
+#PACKAGES
+#install.packages("dLagM") #install jika belum ada
+#install.packages("dynlm") #install jika belum ada
+#install.packages("MLmetrics") #install jika belum ada
+library(dLagM)
+library(dynlm)
+library(MLmetrics)
+library(lmtest)
+library(car)
+library(readxl)
+```
+### Impor Data
+```{r}
+library(readxl)
+data1 <- read_excel("C:/Users/raiha/Downloads/SEMESTER 5/MPDW/TUGAS INDIVIDU/PERTEMUAN 1/data.mpdw1.xlsx")
+data1
+```
+### Eksplorasi Data
+## Plot Time Series
+```{r}
+data1 <- data1[,2]
+data1.ts <- ts(data1)
+data1.ts
+```
+```{r}
+ts.plot(data1.ts, xlab="Periode", ylab="Lama Penyinaran", 
+        main = "Time Series Plot")
+points(data1.ts)
+```
+Plot deret waktu di atas menunjukkan bahwa data stasioner dalam rataan, ditandai dengan data yang menyebar di sekitar nilai tengahnya. Data statisioner dalam ragam ditandai dengan lebar pita yang cenderung sama.
+```{r}
+dt_ts1 <- data1.ts[1:100] |> ts()
+mean(dt_ts1)
+var(dt_ts1)
+```
+## PLOT ACF
+
+```{r}
+acf(dt_ts1)
+```
+
+Berdasarkan plot ACF tersebut, terlihat bahwa data stasioner dalam rataan ditandai dengan plot ACF yang *cuts off* pada lag ke 1
+
+## Uji ADF
+
+```{r}
+tseries::adf.test(dt_ts1)
+```
+$H_0$ : Data tidak stasioner dalam rataan
+
+$H_1$ : Data stasioner dalam rataan
+
+Berdasarkan uji ADF tersebut, didapat *p-value* sebesar 0.01 yang kurang dari taraf nyata 5% dan menandakan bahwa data stasioner dalam rataan. Hal ini sesuai dengan hasil eksplorasi menggunakan plot time series dan plot ACF
+
+## Plot Box-Cox
+
+```{r}
+library(MASS)
+index <- seq(1:100)
+bc = boxcox(dt_ts1~index, lambda = seq(0,5,by=0.01))
+#Nilai Rounded Lambda
+lambda <- bc$x[which.max(bc$y)]
+lambda
+#SK
+bc$x[bc$y > max(bc$y) - 1/2 * qchisq(.95,1)]
+```
+
+Gambar di atas menunjukkan nilai *rounded value* ($\lambda$) optimum sebesar **0,8** dan pada selang kepercayaan 95% nilai memiliki batas bawah **0,57** dan batas atas **1,05**. Selang tersebut memuat nilai satu sehingga dapat dikatakan bahwa data bangkitan stasioner dalam ragam.
+
+### Split (train,test)
+## Plot Data Latih
+# Data Latih : 80%
+# Data uji : 20%
+```{r}
+pen.train<-dt_ts1[1:80]
+train.ts.pen<-ts(pen.train)
+plot.ts(train.ts.pen, lty=1, xlab="Periode", ylab="Lama Penyinaran", main="Plot Penyinaran (Train)")
+```
+Berdasarkan plot data deret waktu pada data latih, terlihat bahwa data cenderung memiliki trend yang berfluktuasi dan cenderung bergerak pada nilai tengah tertentu. Hal ini mengindikasikan bahwa lamanya penyinaran cenderung stasioner dalam rataan.
+
+# Plot Data Uji
+```{r}
+pen.test<-dt_ts1[81:100]
+test.ts.pen<-ts(pen.test)
+plot.ts(test.ts.pen, lty=1, xlab="Periode", ylab="Lama Penyinaran", main="Plot Penyinaran (Test)")
+```
+Berdasarkan plot data deret waktu pada data uji, terlihat bahwa data cenderung tidak bergerak pada nilai tengah tertentu. Hal ini mengindikasikan bahwa data cenderung tidak stasioner dalam rataan.
+
+### Uji Stasioneritas Data
+
+## PLOT ACF
+
+```{r}
+acf(train.ts.pen)
+```
+Berdasarkan plot ACF tersebut, terlihat bahwa data stasioner dalam rataan ditandai dengan plot ACF yang *cuts off* pada lag ke 1
+
+## Uji ADF
+
+```{r}
+tseries::adf.test(train.ts.pen)
+```
+$H_0$ : Data tidak stasioner dalam rataan
+
+$H_1$ : Data stasioner dalam rataan
+
+Berdasarkan uji ADF tersebut, didapat *p-value* sebesar 0.01 yang kurang dari taraf nyata 5% dan menandakan bahwa data stasioner dalam rataan. Hal ini sesuai dengan hasil eksplorasi menggunakan plot time series dan plot ACF
+
+## Plot Box-Cox
+
+```{r}
+index <- seq(1:80)
+bc.train = boxcox(train.ts.pen~ index, lambda = seq(0,5,by=0.01))
+#Nilai Rounded Lambda
+lambda <- bc$x[which.max(bc$y)]
+lambda
+#SK
+bc$x[bc$y > max(bc$y) - 1/2 * qchisq(.95,1)]
+```
+
+Gambar di atas menunjukkan nilai *rounded value* ($\lambda$) optimum sebesar **0,8** dan pada selang kepercayaan 95% nilai memiliki batas bawah **0,57** dan batas atas **1,05**. Selang tersebut memuat nilai satu sehingga dapat dikatakan bahwa data bangkitan stasioner dalam ragam.
+
+Dari hasil diatas tidak ada penanganan Stasioner karena data tersebut sudah stasioner dalam rataan dan dalam ragam.

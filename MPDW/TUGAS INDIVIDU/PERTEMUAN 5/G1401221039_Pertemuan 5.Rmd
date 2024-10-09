@@ -1,0 +1,250 @@
+---
+title: "Pertemuan 5"
+author: "Raihana Asma Amani_G1401221039"
+date: "2024-09-17"
+output: html_document
+---
+
+```{r}
+library(ggplot2)
+library(tsibble)
+library(tseries)
+library(MASS)
+```
+
+##### Impor Data
+
+```{r}
+library(readxl)
+data1 <- read_excel("C:/Users/raiha/Downloads/SEMESTER 5/MPDW/TUGAS INDIVIDU/PERTEMUAN 1/data.mpdw1.xlsx")
+data1
+data1 <- data1[,2]
+data1.ts <- ts(data1)
+data1.ts
+```
+
+##### PARTISI DATA 1 (1:100)
+
+```{r}
+dt_ts1 <- data1.ts[1:100] |> ts()
+mean(dt_ts1)
+var(dt_ts1)
+```
+
+#### PLOT TIME SERIES
+
+```{r}
+ts.plot(dt_ts1)
+```
+
+```{r}
+plot_ts1 <- dt_ts1|> as_tsibble() |> 
+  ggplot(aes(x = index, y = value)) + geom_line() + theme_bw() +
+  xlab("Obs") + ylab("Nilai")
+plot_ts1
+```
+
+```{r}
+mean(dt_ts1)
+```
+
+Plot deret waktu di atas menunjukkan bahwa data stasioner dalam rataan, ditandai dengan data yang menyebar di sekitar nilai tengahnya dan stasioner dalam ragam, ditandai dengan lebar pita yang cenderung sama.
+
+```{r}
+lattice:: densityplot(as.vector(dt_ts1))
+```
+
+#### PLOT ACF
+
+```{r}
+acf(dt_ts1)
+```
+
+Berdasarkan plot ACF tersebut, terlihat bahwa data stasioner dalam rataan ditandai dengan plot ACF yang *cuts off* pada lag ke 1
+
+#### Uji ADF
+
+```{r}
+tseries::adf.test(dt_ts1)
+```
+
+$H_0$ : Data tidak stasioner dalam rataan
+
+$H_1$ : Data stasioner dalam rataan
+
+Berdasarkan uji ADF tersebut, didapat *p-value* sebesar 0.01 yang kurang dari taraf nyata 5% dan menandakan bahwa data stasioner dalam rataan. Hal ini sesuai dengan hasil eksplorasi menggunakan plot time series dan plot ACF
+
+#### Plot Box-Cox
+
+```{r}
+library(MASS)
+index <- seq(1:100)
+bc = boxcox(dt_ts1~index, lambda = seq(0,5,by=0.01))
+#Nilai Rounded Lambda
+lambda <- bc$x[which.max(bc$y)]
+lambda
+#SK
+bc$x[bc$y > max(bc$y) - 1/2 * qchisq(.95,1)]
+```
+
+Gambar di atas menunjukkan nilai *rounded value* ($\lambda$) optimum sebesar **0,8** dan pada selang kepercayaan 95% nilai memiliki batas bawah **0,57** dan batas atas **1,05**. Selang tersebut memuat nilai satu sehingga dapat dikatakan bahwa data bangkitan stasioner dalam ragam.
+
+### KESIMPULAN PARTISI DATA 1 (100 DATA)
+
+Dapat dikatakan data tersebut stasioner dalam rataan dan stasioner dalam ragam.
+
+##### PARTISI DATA 2 (1:50)
+
+```{r}
+dt_ts2 <- data1.ts[1:50] |> ts()
+mean(dt_ts2)
+var(dt_ts2)
+```
+
+#### PLOT TIME SERIES
+
+```{r}
+ts.plot(dt_ts2)
+```
+
+```{r}
+plot_ts2 <- dt_ts2 |> as_tsibble() |> 
+  ggplot(aes(x = index, y = value)) + geom_line() + theme_bw() +
+  xlab("Obs") + ylab("Nilai")
+plot_ts2
+```
+
+```{r}
+mean(dt_ts2)
+```
+
+Plot deret waktu di atas menunjukkan bahwa data stasioner dalam rataan, ditandai dengan data yang menyebar di sekitar nilai tengahnya dan stasioner dalam ragam, ditandai dengan lebar pita yang cenderung sama.
+
+```{r}
+lattice:: densityplot(as.vector(dt_ts2))
+```
+
+#### PLOT ACF
+
+```{r}
+acf(dt_ts2)
+```
+
+Berdasarkan plot ACF tersebut, terlihat bahwa data stasioner dalam rataan ditandai dengan plot ACF yang *cuts off* pada lag ke 1
+
+#### Uji ADF
+
+```{r}
+tseries::adf.test(dt_ts2)
+```
+
+$H_0$ : Data tidak stasioner dalam rataan
+
+$H_1$ : Data stasioner dalam rataan
+
+Berdasarkan uji ADF tersebut, didapat p-value sebesar 0.06803 yang lebih besar dari taraf nyata 5% sehingga tak tolak H0 dan menandakan bahwa data tidak stasioner dalam rataan.
+
+#### Plot Box-Cox
+
+```{r}
+library(MASS)
+index <- seq(1:50)
+bc = boxcox(dt_ts2~index, lambda = seq(0,5,by=0.01))
+#Nilai Rounded Lambda
+lambda <- bc$x[which.max(bc$y)]
+lambda
+#SK
+bc$x[bc$y > max(bc$y) - 1/2 * qchisq(.95,1)]
+```
+
+Gambar di atas menunjukkan nilai *rounded value* ($\lambda$) optimum sebesar **0,65** dan pada selang kepercayaan 95% nilai memiliki batas bawah **0,33** dan batas atas **1,02**. Selang tersebut memuat nilai satu sehingga dapat dikatakan bahwa data bangkitan stasioner dalam ragam.
+
+### KESIMPULAN PARTISI DATA 2 (1:50)
+
+Dapat dikatakan data tersebut tidak stasioner dalam rataan tetapi stasioner dalam ragam.
+
+##### PARTISI DATA 3 (50:100)
+
+```{r}
+dt_ts3 <- data1.ts[50:100] |> ts()
+mean(dt_ts3)
+var(dt_ts3)
+```
+
+#### PLOT TIME SERIES
+
+```{r}
+ts.plot(dt_ts3)
+```
+
+```{r}
+plot_ts3 <- dt_ts3 |> as_tsibble() |> 
+  ggplot(aes(x = index, y = value)) + geom_line() + theme_bw() +
+  xlab("Obs") + ylab("Nilai")
+plot_ts3
+```
+
+```{r}
+mean(dt_ts3)
+```
+
+Plot deret waktu di atas menunjukkan bahwa data stasioner dalam rataan, ditandai dengan data yang menyebar di sekitar nilai tengahnya dan stasioner dalam ragam, ditandai dengan lebar pita yang cenderung sama.
+
+```{r}
+lattice:: densityplot(as.vector(dt_ts3))
+```
+
+#### PLOT ACF
+
+```{r}
+acf(dt_ts3)
+```
+
+#### PLOT PACF
+
+```{r}
+pacf(dt_ts3)
+```
+
+Berdasarkan plot ACF belum terlihat jelas sehingga menggunakan plot PACF yang hasilnya terlihat bahwa data stasioner dalam rataan ditandai dengan plot ACF yang *cuts off* pada lag awal.
+
+#### Uji ADF
+
+```{r}
+tseries::adf.test(dt_ts3)
+```
+
+$H_0$ : Data tidak stasioner dalam rataan
+
+$H_1$ : Data stasioner dalam rataan
+
+Berdasarkan uji ADF tersebut, didapat *p-value* sebesar 0.01195 yang kurang dari taraf nyata 5% dan menandakan bahwa data stasioner dalam rataan. Hal ini sesuai dengan hasil eksplorasi menggunakan plot time series dan plot ACF
+
+#### Plot Box-Cox
+
+```{r}
+library(MASS)
+index <- seq(50:100)
+bc = boxcox(dt_ts3~index, lambda = seq(0,5,by=0.01))
+#Nilai Rounded Lambda
+lambda <- bc$x[which.max(bc$y)]
+lambda
+#SK
+bc$x[bc$y > max(bc$y) - 1/2 * qchisq(.95,1)]
+```
+
+Gambar di atas menunjukkan nilai *rounded value* ($\lambda$) optimum sebesar **0,9** dan pada selang kepercayaan 95% nilai memiliki batas bawah **0,59** dan batas atas **1,25**. Selang tersebut memuat nilai satu sehingga dapat dikatakan bahwa data bangkitan stasioner dalam ragam.
+
+### KESIMPULAN PARTISI DATA 3(50:100)
+
+Dapat dikatakan data tersebut stasioner dalam rataan dan stasioner dalam ragam.
+
+### KESIMPULAN AKHIR
+
+Setelah melakukan 3 partisi dengan beberapa uji, dapat disimpulkan bahwa :
+
+1\. Partisi bagian 1 (1:100) : data stasioner dalam rataan dan stationer dalam ragam.
+
+2\. Partisi bagian 2 (1:50) : data tidak stasioner dalam rataan tapi stationer dalam ragam.
+
+3\. Partisi bagian 3 (50:100) : data stasioner dalam rataan dan stationer dalam ragam.

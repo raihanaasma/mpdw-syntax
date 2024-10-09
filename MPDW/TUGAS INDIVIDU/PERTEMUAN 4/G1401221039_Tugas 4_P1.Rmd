@@ -1,0 +1,226 @@
+---
+title: "Praktikum 4"
+author: "Raihana Asma Amani_G1401221039"
+date: "2024-09-16"
+output: html_document
+---
+##Nomor 1
+#Membangkitkan model MA(2) dengan 𝜃1 = 0.4 dan 𝜃2 = 0.6 sebanyak 300 data (Manual dan dengan arima.sim)
+
+```{r}
+set.seed(3939)
+n <- 300
+theta1 <- 0.4
+theta2 <- 0.6
+e <- rnorm(n)  # noise
+Y <- numeric(n)
+
+for (t in 3:n) {
+  Y[t] <- e[t] + theta1 * e[t-1] + theta2 * e[t-2]
+}
+Y <- ts(Y)# rubah ke time series
+Y
+```
+
+#Menggunakan Arima.sim
+```{r}
+set.seed(3939)
+Y_arima <- arima.sim(model = list(ma = c(0.4, 0.6)), n = 300)
+Y_arima
+```
+
+#Buat plot time series, plot ACF, plot PACF dan plot EACF. Idenifikasi apakah data tersebut stasioner
+```{r}
+# Plot Time Series
+plot(Y, main = "MA(2) Time Series", ylab = "Yt", xlab = "Time")
+```
+Berdasarkan plot time series, terlihat bahwa data MA(2) yang dibangkitkan stasioner dalam rataan
+```{r}
+# Plot ACF
+acf(Y, main = "ACF of MA(2)")
+```
+Berdasarkan plot AFC tersebut, terlihat bahwa plot ACF *cuts off* di lag kedua
+```{r}
+# Plot PACF
+pacf(Y, main = "PACF of MA(2)")
+```
+Berdasarkan plot PACF tersebut, terlihat bahwa plot PACF cenderung *tails off* dan membentuk gelombang sinus
+```{r}
+# Plot EACF (gunakan paket TSA)
+library(TSA)
+eacf(Y)
+```
+Berdasarkan pola segitiga nol pada plot EACF, terlihat bahwa segitiga nol berada pada ordo AR(0) dan ordo MA(2)
+
+#Buat Scatterplot antara 𝑌𝑡 dengan 𝑌𝑡−1, 𝑌𝑡 dengan 𝑌𝑡−2, dan 𝑌𝑡 dengan 𝑌𝑡−3
+```{r}
+# Scatterplot Yt dengan Yt-1
+plot(Y[2:300], Y[1:299], main = "Scatterplot Yt vs Yt-1", xlab = "Yt-1", ylab = "Yt")
+```
+Berdasarkan scatterplot tersebut, terlihat bahwa terdapat hubungan positif antara $Y_t$ dengan $Y_{t-1}$. Hal ini sesuai dengan teori yang ada
+```{r}
+# Scatterplot Yt dengan Yt-2
+plot(Y[3:300], Y[1:298], main = "Scatterplot Yt vs Yt-2", xlab = "Yt-2", ylab = "Yt")
+```
+Berdasarkan scatterplot tersebut, terlihat bahwa terdapat hubungan positif antara $Y_t$ dengan $Y_{t-2}$. Hal ini sesuai dengan teori yang ada
+```{r}
+# Scatterplot Yt dengan Yt-3
+plot(Y[4:300], Y[1:297], main = "Scatterplot Yt vs Yt-3", xlab = "Yt-3", ylab = "Yt")
+```
+Berdasarkan scatterplot tersebut, terlihat bahwa cenderung tidak terdapat hubungan antara $Y_t$ dengan $Y_{t-3}$.
+#Hitung autokorelasi masing masing baik dari data bangkitan maupun secara teoritis
+```{r}
+#Autokorelasi Teoritis
+rho1 <- theta1 / (1 + theta1^2 + theta2^2)
+rho2 <- theta2 / (1 + theta1^2 + theta2^2)
+rho1  # Lag 1 autokorelasi
+rho2  # Lag 2 autokorelasi
+```
+
+##Nomor 2
+#Membangkitkan model AR(2) dengan 𝜙1 = 0.5 dan 𝜙2 = 0.2 sebanyak 300 data (Manual dan dengan arima.sim)
+```{r}
+set.seed(3939)
+n <- 300
+phi1 <- 0.5
+phi2 <- 0.2
+e <- rnorm(n)  # noise
+Y <- numeric(n)
+
+for (t in 3:n) {
+  Y[t] <- phi1 * Y[t-1] + phi2 * Y[t-2] + e[t]
+}
+Y <- ts(Y)  # rubah ke time series
+Y
+```
+
+#Menggunakan Arima.sim
+```{r}
+set.seed(3939)
+Y_arima <- arima.sim(model = list(ar = c(0.5, 0.2)), n = 300)
+Y_arima
+```
+
+#Buat plot time series, plot ACF, plot PACF dan plot EACF. Idenifikasi apakah data tersebut stasioner
+```{r}
+# Plot Time Series
+plot(Y, main = "AR(2) Time Series", ylab = "Yt", xlab = "Time")
+```
+```{r}
+# Plot ACF
+acf(Y, main = "ACF of AR(2)")
+```
+Berdasarkan plot ACF tersebut terlihat bahwa plot ACF cenderung *tails off* dan cenderung membentuk pola grafik sinus
+
+```{r}
+# Plot PACF
+pacf(Y, main = "PACF of AR(2)")
+```
+Berdasarkan plot PACF tersebut, terlihat bahwa plot PACF *cuts off* pada lag pertama, sejalan dengan teori yang ada
+```{r}
+# Plot EACF (gunakan paket TSA)
+library(TSA)
+eacf(Y)
+```
+Berdasarkan pola segitiga nol pada plot EACF, terlihat bahwa segitiga nol berada pada ordo AR(2) dan ordo MA(0)
+#Buat scatterplot antara 𝑌𝑡 dengan 𝑌𝑡−1, 𝑌𝑡 dengan 𝑌𝑡−2 serta 𝑌𝑡dengan 𝑌𝑡−3
+```{r}
+# Scatterplot Yt dengan Yt-1
+plot(Y[2:300], Y[1:299], main = "Scatterplot Yt vs Yt-1", xlab = "Yt-1", ylab = "Yt")
+```
+Berdasarkan scatterplot tersebut, terlihat bahwa terdapat hubungan positif antara $Y_t$ dengan $Y_{t-1}$. Hal ini sesuai dengan teori yang ada
+```{r}
+# Scatterplot Yt dengan Yt-2
+plot(Y[3:300], Y[1:298], main = "Scatterplot Yt vs Yt-2", xlab = "Yt-2", ylab = "Yt")
+```
+Berdasarkan scatterplot tersebut, terlihat bahwa terdapat hubungan positif antara $Y_t$ dengan $Y_{t-2}$. Hal ini sesuai dengan teori yang ada
+```{r}
+# Scatterplot Yt dengan Yt-3
+plot(Y[4:300], Y[1:297], main = "Scatterplot Yt vs Yt-3", xlab = "Yt-3", ylab = "Yt")
+```
+Berdasarkan scatterplot tersebut, terlihat bahwa terdapat hubungan positif antara $Y_t$ dengan $Y_{t-3}$. Hal ini sesuai dengan teori yang ada
+#Hitung autokorelasi masing masing baik dari data bangkitan maupun secara teoritis
+```{r}
+# Autokorelasi Teoritis menggunakan persamaan Yule-Walker
+phi1 <- 0.5
+phi2 <- 0.2
+
+# Lag 1 dan Lag 2
+rho1 <- phi1 / (1 - phi2)
+rho2 <- (phi1 * rho1 + phi2) / (1 - phi2)
+rho1  # Lag 1 autokorelasi teoritis
+rho2  # Lag 2 autokorelasi teoritis
+```
+
+##Nomor  3
+#Membangkitkan model ARMA(2,2) dengan 𝜃1 = 0.4, 𝜃2 = 0.6 ,𝜙1 = 0.5 dan 𝜙2 = 0.2 sebanyak 300 data (Manual dan arima.sim)
+```{r}
+set.seed(3939)
+n <- 300
+phi1 <- 0.5
+phi2 <- 0.2
+theta1 <- 0.4
+theta2 <- 0.6
+e <- rnorm(n)  # noise
+Y <- numeric(n)
+
+for (t in 3:n) {
+  Y[t] <- phi1 * Y[t-1] + phi2 * Y[t-2] + e[t] - theta1 * e[t-1] - theta2 * e[t-2]
+}
+Y <- ts(Y)  # convert to time series
+Y
+```
+
+#Menggunakan Arima.sim
+```{r}
+set.seed(3939)
+Y_arima <- arima.sim(model = list(ar = c(0.5, 0.2), ma = c(0.4, 0.6)), n = 300)
+Y_arima
+```
+
+#Buat plot time series, plot ACF, plot PACF dan plot EACF. Idenifikasi apakah data tersebut stasioner
+```{r}
+# Plot Time Series
+plot(Y, main = "ARMA(2,2) Time Series", ylab = "Yt", xlab = "Time")
+```
+```{r}
+# Plot ACF
+acf(Y, main = "ACF of ARMA(2,2)")
+```
+Berdasarkan plot ACF tersebut, terlihat bahwa model ARMA(2,2) hasil simulasi memiliki plot ACF yang *tails off*, sesuai dengan teori yang ada
+```{r}
+# Plot PACF
+pacf(Y, main = "PACF of ARMA(2,2)")
+```
+Berdasarkan plot ACF tersebut, terlihat bahwa model ARMA(2,2) hasil simulasi memiliki plot ACF yang *tails off*, sesuai dengan teori yang ada
+```{r}
+# Plot EACF (gunakan paket TSA)
+library(TSA)
+eacf(Y)
+
+# Identifikasi Stasioneritas
+library(tseries)
+adf.test(Y)
+```
+Berdasarkan pola segitiga nol pada plot EACF, terlihat bahwa segitiga nol berada pada ordo AR(2) dan ordo MA(2)
+#Buat scatterplot antara 𝑌𝑡 dengan 𝑌𝑡−1, 𝑌𝑡 dengan 𝑌𝑡−2 serta 𝑌𝑡dengan 𝑌𝑡−3
+```{r}
+# Scatterplot Yt dengan Yt-1
+plot(Y[2:300], Y[1:299], main = "Scatterplot Yt vs Yt-1", xlab = "Yt-1", ylab = "Yt")
+```
+Berdasarkan scatterplot tersebut, terlihat bahwa terdapat hubungan positif antara $Y_t$ dengan $Y_{t-1}$. Hal ini sesuai dengan teori yang ada
+```{r}
+# Scatterplot Yt dengan Yt-2
+plot(Y[3:300], Y[1:298], main = "Scatterplot Yt vs Yt-2", xlab = "Yt-2", ylab = "Yt")
+```
+Berdasarkan scatterplot tersebut, terlihat bahwa terdapat hubungan positif antara $Y_t$ dengan $Y_{t-2}$. Hal ini sesuai dengan teori yang ada
+```{r}
+# Scatterplot Yt dengan Yt-3
+plot(Y[4:300], Y[1:297], main = "Scatterplot Yt vs Yt-3", xlab = "Yt-3", ylab = "Yt")
+```
+Berdasarkan scatterplot tersebut, terlihat bahwa terdapat hubungan positif antara $Y_t$ dengan $Y_{t-3}$. Hal ini sesuai dengan teori yang ada
+#Hitung autokorelasi masing masing baik dari data bangkitan maupun secara teoritis
+```{r}
+acf(Y)
+```
+Berdasarkan plot ACF tersebut, terlihat bahwa model ARMA(2,2) hasil simulasi memiliki plot ACF yang *tails off*, sesuai dengan teori yang ada
